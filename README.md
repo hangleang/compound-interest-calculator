@@ -36,7 +36,7 @@ No build step needed — just open the file in your browser:
 
 ```bash
 git clone https://github.com/hangleang/money-101.git
-cd compound-interest-calculator
+cd money-101
 open index.html
 ```
 
