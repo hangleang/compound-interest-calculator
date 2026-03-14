@@ -3,673 +3,965 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Compound Interest Calculator</title>
+<title>Money Tools</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-  :root {
-    --bg: #f5f2eb;
-    --surface: #fffef9;
-    --surface2: #f0ece0;
-    --ink: #1a1710;
-    --ink2: #5a5547;
-    --ink3: #9a9285;
-    --accent: #2d5a3d;
-    --accent-light: #c8dece;
-    --accent2: #8b4513;
-    --gold: #c9a84c;
-    --border: rgba(26,23,16,0.12);
-    --border-strong: rgba(26,23,16,0.25);
-  }
+:root {
+  --bg: #f5f2eb;
+  --surface: #fffef9;
+  --surface2: #f0ece0;
+  --ink: #1a1710;
+  --ink2: #5a5547;
+  --ink3: #9a9285;
+  --accent: #2d5a3d;
+  --gold: #c9a84c;
+  --red: #b83225;
+  --amber: #a06c1a;
+  --border: rgba(26,23,16,0.12);
+  --border-strong: rgba(26,23,16,0.22);
+}
 
-  html { font-size: 16px; }
+html { font-size: 16px; }
 
-  body {
-    font-family: 'DM Mono', monospace;
-    background: var(--bg);
-    color: var(--ink);
-    min-height: 100vh;
-    line-height: 1.6;
-  }
+body {
+  font-family: 'DM Mono', monospace;
+  background: var(--bg);
+  color: var(--ink);
+  min-height: 100vh;
+  line-height: 1.6;
+}
 
-  /* Grain texture overlay */
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
-    pointer-events: none;
-    z-index: 0;
-    opacity: 0.6;
-  }
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.6;
+}
 
-  .container {
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 3rem 2rem 5rem;
-    position: relative;
-    z-index: 1;
-  }
+.container {
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 2.5rem 2rem 5rem;
+  position: relative;
+  z-index: 1;
+}
 
-  /* Header */
-  header {
-    margin-bottom: 3.5rem;
-    border-bottom: 1px solid var(--border-strong);
-    padding-bottom: 2rem;
-    display: flex;
-    align-items: flex-end;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 1rem;
-  }
+/* ── Site header ── */
+.site-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2.5rem;
+  padding-bottom: 1.75rem;
+  border-bottom: 1px solid var(--border-strong);
+  flex-wrap: wrap;
+  gap: 1rem;
+}
 
-  .logo-mark {
-    width: 38px;
-    height: 38px;
-    border: 1.5px solid var(--ink);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 14px;
-    font-weight: 500;
-    letter-spacing: -0.5px;
-    margin-bottom: 1rem;
-    color: var(--accent);
-    border-color: var(--accent);
-  }
+.site-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
 
-  h1 {
-    font-family: 'DM Serif Display', serif;
-    font-size: clamp(2rem, 5vw, 3.2rem);
-    font-weight: 400;
-    line-height: 1.1;
-    letter-spacing: -0.02em;
-    color: var(--ink);
-  }
+.logo-mark {
+  width: 36px;
+  height: 36px;
+  border: 1.5px solid var(--accent);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--accent);
+  flex-shrink: 0;
+}
 
-  h1 em {
-    font-style: italic;
-    color: var(--accent);
-  }
+.site-name {
+  font-family: 'DM Serif Display', serif;
+  font-size: 1.15rem;
+  color: var(--ink);
+  letter-spacing: -0.01em;
+}
 
-  .header-note {
-    font-size: 12px;
-    color: var(--ink3);
-    text-align: right;
-    line-height: 1.5;
-    max-width: 200px;
-  }
+.site-name span { color: var(--ink3); font-style: italic; }
 
-  /* Controls section */
-  .controls-section {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 2px;
-    padding: 2rem;
-    margin-bottom: 2rem;
-  }
+/* ── Tab switcher ── */
+.tab-switcher {
+  display: flex;
+  border: 1px solid var(--border-strong);
+  border-radius: 2px;
+  overflow: hidden;
+  background: var(--surface2);
+}
 
-  .controls-label {
-    font-size: 10px;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    color: var(--ink3);
-    margin-bottom: 1.5rem;
-  }
+.tab-btn {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  padding: 8px 20px;
+  background: transparent;
+  border: none;
+  color: var(--ink3);
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
 
-  .controls-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1.75rem 3rem;
-  }
+.tab-btn:first-child { border-right: 1px solid var(--border-strong); }
+.tab-btn.active { background: var(--surface); color: var(--ink); }
+.tab-btn.active.ci { box-shadow: inset 0 -2px 0 var(--accent); }
+.tab-btn.active.pp { box-shadow: inset 0 -2px 0 var(--red); }
 
-  @media (max-width: 600px) {
-    .controls-grid { grid-template-columns: 1fr; }
-    header { flex-direction: column; align-items: flex-start; }
-    .header-note { text-align: left; max-width: 100%; }
-  }
+/* ── Tool panels ── */
+.tool-panel { display: none; }
+.tool-panel.active { display: block; }
 
-  .control-row label {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    font-size: 12px;
-    color: var(--ink2);
-    letter-spacing: 0.03em;
-    margin-bottom: 10px;
-  }
+/* ── Tool header ── */
+.tool-header {
+  margin-bottom: 2.5rem;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
 
-  .control-row label .val {
-    font-size: 15px;
-    font-weight: 500;
-    color: var(--ink);
-    font-family: 'DM Serif Display', serif;
-  }
+h1 {
+  font-family: 'DM Serif Display', serif;
+  font-size: clamp(1.8rem, 4.5vw, 2.9rem);
+  font-weight: 400;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
 
-  input[type="range"] {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 100%;
-    height: 1px;
-    background: var(--border-strong);
-    outline: none;
-    cursor: pointer;
-  }
+h1 em        { font-style: italic; color: var(--accent); }
+h1 em.red    { color: var(--red); }
 
-  input[type="range"]::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 14px;
-    height: 14px;
-    border-radius: 50%;
-    background: var(--ink);
-    cursor: pointer;
-    border: 2px solid var(--bg);
-    box-shadow: 0 0 0 1px var(--ink);
-    transition: transform 0.15s;
-  }
+.tool-desc {
+  font-size: 12px;
+  color: var(--ink3);
+  text-align: right;
+  line-height: 1.6;
+  max-width: 210px;
+}
 
-  input[type="range"]::-webkit-slider-thumb:hover {
-    transform: scale(1.3);
-  }
+@media (max-width: 580px) {
+  .tool-header { flex-direction: column; align-items: flex-start; }
+  .tool-desc { text-align: left; max-width: 100%; }
+  .tab-btn { padding: 8px 12px; font-size: 10px; }
+}
 
-  input[type="range"]::-moz-range-thumb {
-    width: 14px;
-    height: 14px;
-    border-radius: 50%;
-    background: var(--ink);
-    cursor: pointer;
-    border: 2px solid var(--bg);
-    box-shadow: 0 0 0 1px var(--ink);
-  }
+/* ── Controls ── */
+.controls-section {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  padding: 2rem;
+  margin-bottom: 1.75rem;
+}
 
-  /* Metrics */
-  .metrics-grid {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 1px;
-    background: var(--border-strong);
-    border: 1px solid var(--border-strong);
-    margin-bottom: 2rem;
-    border-radius: 2px;
-    overflow: hidden;
-  }
+.controls-label {
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--ink3);
+  margin-bottom: 1.5rem;
+}
 
-  @media (max-width: 600px) {
-    .metrics-grid { grid-template-columns: 1fr 1fr; }
-  }
+.controls-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.75rem 3rem;
+}
 
-  .metric {
-    background: var(--surface);
-    padding: 1.25rem 1.5rem;
-  }
+@media (max-width: 580px) { .controls-grid { grid-template-columns: 1fr; } }
 
-  .metric-label {
-    font-size: 10px;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--ink3);
-    margin-bottom: 0.5rem;
-  }
+.control-row label {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 12px;
+  color: var(--ink2);
+  letter-spacing: 0.03em;
+  margin-bottom: 10px;
+}
 
-  .metric-value {
-    font-family: 'DM Serif Display', serif;
-    font-size: 1.6rem;
-    line-height: 1;
-    color: var(--ink);
-    letter-spacing: -0.02em;
-  }
+.control-row label .val {
+  font-family: 'DM Serif Display', serif;
+  font-size: 15px;
+  color: var(--ink);
+}
 
-  .metric-value.accent { color: var(--accent); }
-  .metric-value.gold { color: var(--gold); }
+.control-row label .val.red { color: var(--red); }
 
-  .metric-sub {
-    font-size: 10px;
-    color: var(--ink3);
-    margin-top: 4px;
-  }
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 1px;
+  background: var(--border-strong);
+  outline: none;
+  cursor: pointer;
+}
 
-  /* Chart section */
-  .chart-section {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 2px;
-    padding: 2rem;
-    margin-bottom: 2rem;
-  }
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  background: var(--ink);
+  cursor: pointer;
+  border: 2px solid var(--bg);
+  box-shadow: 0 0 0 1px var(--ink);
+  transition: transform 0.15s;
+}
 
-  .chart-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1.5rem;
-    flex-wrap: wrap;
-    gap: 0.75rem;
-  }
+input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.3); }
 
-  .chart-title {
-    font-size: 10px;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    color: var(--ink3);
-  }
+input[type="range"].red-thumb::-webkit-slider-thumb {
+  background: var(--red);
+  box-shadow: 0 0 0 1px var(--red);
+}
 
-  .legend {
-    display: flex;
-    gap: 1.25rem;
-    flex-wrap: wrap;
-  }
+input[type="range"]::-moz-range-thumb {
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  background: var(--ink);
+  border: 2px solid var(--bg);
+  box-shadow: 0 0 0 1px var(--ink);
+  cursor: pointer;
+}
 
-  .legend-item {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 11px;
-    color: var(--ink2);
-  }
+/* ── Metrics ── */
+.metrics-grid {
+  display: grid;
+  gap: 1px;
+  background: var(--border-strong);
+  border: 1px solid var(--border-strong);
+  margin-bottom: 1.75rem;
+  border-radius: 2px;
+  overflow: hidden;
+}
 
-  .legend-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 1px;
-    flex-shrink: 0;
-  }
+.metrics-grid.cols-4 { grid-template-columns: repeat(4, minmax(0,1fr)); }
+.metrics-grid.cols-3 { grid-template-columns: repeat(3, minmax(0,1fr)); }
 
-  .chart-canvas-wrap {
-    position: relative;
-    width: 100%;
-    height: 300px;
-  }
+@media (max-width: 580px) {
+  .metrics-grid.cols-4,
+  .metrics-grid.cols-3 { grid-template-columns: 1fr 1fr; }
+}
 
-  /* Breakdown bar */
-  .breakdown-section {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 2px;
-    padding: 2rem;
-    margin-bottom: 2rem;
-  }
+.metric { background: var(--surface); padding: 1.25rem 1.5rem; }
 
-  .breakdown-label {
-    font-size: 10px;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    color: var(--ink3);
-    margin-bottom: 1.25rem;
-  }
+.metric-label {
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink3);
+  margin-bottom: 0.5rem;
+}
 
-  .breakdown-bar-wrap {
-    height: 10px;
-    background: var(--surface2);
-    border-radius: 1px;
-    overflow: hidden;
-    margin-bottom: 1rem;
-    display: flex;
-  }
+.metric-value {
+  font-family: 'DM Serif Display', serif;
+  font-size: 1.55rem;
+  line-height: 1;
+  color: var(--ink);
+  letter-spacing: -0.02em;
+}
 
-  .bar-principal { background: var(--ink); transition: width 0.4s ease; }
-  .bar-contributions { background: var(--ink3); transition: width 0.4s ease; }
-  .bar-interest { background: var(--accent); transition: width 0.4s ease; }
+.metric-value.accent { color: var(--accent); }
+.metric-value.gold   { color: var(--gold); }
+.metric-value.red    { color: var(--red); }
+.metric-value.amber  { color: var(--amber); }
 
-  .breakdown-items {
-    display: flex;
-    gap: 2rem;
-    flex-wrap: wrap;
-  }
+.metric-sub { font-size: 10px; color: var(--ink3); margin-top: 4px; }
 
-  .breakdown-item {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 12px;
-    color: var(--ink2);
-  }
+/* ── Chart ── */
+.chart-section {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  padding: 2rem;
+  margin-bottom: 1.75rem;
+}
 
-  .breakdown-item .bi-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 1px;
-    flex-shrink: 0;
-  }
+.chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
 
-  .breakdown-item .bi-val {
-    font-weight: 500;
-    color: var(--ink);
-  }
+.chart-title {
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--ink3);
+}
 
-  /* Footer */
-  footer {
-    border-top: 1px solid var(--border);
-    padding-top: 1.5rem;
-    font-size: 11px;
-    color: var(--ink3);
-    display: flex;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-  }
+.legend { display: flex; gap: 1.25rem; flex-wrap: wrap; }
 
-  /* Animate in */
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(12px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--ink2);
+}
 
-  header { animation: fadeUp 0.5s ease both; }
-  .controls-section { animation: fadeUp 0.5s 0.1s ease both; }
-  .metrics-grid { animation: fadeUp 0.5s 0.2s ease both; }
-  .chart-section { animation: fadeUp 0.5s 0.3s ease both; }
-  .breakdown-section { animation: fadeUp 0.5s 0.35s ease both; }
+.legend-dot { width: 8px; height: 8px; border-radius: 1px; flex-shrink: 0; }
+
+.chart-canvas-wrap { position: relative; width: 100%; height: 290px; }
+
+/* ── CI: Breakdown ── */
+.breakdown-section {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  padding: 1.75rem 2rem;
+  margin-bottom: 1.75rem;
+}
+
+.breakdown-label {
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--ink3);
+  margin-bottom: 1.25rem;
+}
+
+.breakdown-bar-wrap {
+  height: 8px;
+  background: var(--surface2);
+  border-radius: 1px;
+  overflow: hidden;
+  margin-bottom: 1rem;
+  display: flex;
+}
+
+.bar-principal     { background: var(--ink);    transition: width 0.4s ease; }
+.bar-contributions { background: var(--ink3);   transition: width 0.4s ease; }
+.bar-interest      { background: var(--accent); transition: width 0.4s ease; }
+
+.breakdown-items { display: flex; gap: 2rem; flex-wrap: wrap; }
+
+.breakdown-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--ink2);
+}
+
+.bi-dot { width: 8px; height: 8px; border-radius: 1px; flex-shrink: 0; }
+.bi-val { font-weight: 500; color: var(--ink); }
+
+/* ── PP: Power display ── */
+.power-display {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  background: var(--border-strong);
+  border: 1px solid var(--border-strong);
+  margin-bottom: 1.75rem;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+@media (max-width: 480px) { .power-display { grid-template-columns: 1fr; } }
+
+.power-cell { background: var(--surface); padding: 1.75rem 2rem; }
+.power-cell.future { background: rgba(184,50,37,0.04); }
+
+.power-cell-label {
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink3);
+  margin-bottom: 0.75rem;
+}
+
+.power-amount {
+  font-family: 'DM Serif Display', serif;
+  font-size: clamp(2.2rem, 5vw, 3.4rem);
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: var(--ink);
+}
+
+.power-cell.future .power-amount { color: var(--red); }
+
+.power-sub { font-size: 11px; color: var(--ink3); margin-top: 0.5rem; }
+.power-sub strong { color: var(--ink2); font-weight: 400; }
+
+.equiv-row { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 1rem; }
+
+.equiv-tag {
+  font-size: 10px;
+  padding: 3px 8px;
+  border: 1px solid var(--border);
+  color: var(--ink3);
+  background: var(--surface2);
+  border-radius: 1px;
+}
+
+.equiv-tag.struck {
+  color: rgba(184,50,37,0.45);
+  border-color: rgba(184,50,37,0.2);
+  background: rgba(184,50,37,0.04);
+  text-decoration: line-through;
+}
+
+/* ── PP: Presets ── */
+.presets-wrap { margin-bottom: 1.75rem; }
+
+.presets-label {
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink3);
+  margin-bottom: 0.75rem;
+}
+
+.presets { display: flex; gap: 8px; flex-wrap: wrap; }
+
+.preset-btn {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  padding: 6px 14px;
+  background: transparent;
+  border: 1px solid var(--border-strong);
+  color: var(--ink3);
+  cursor: pointer;
+  border-radius: 1px;
+  transition: all 0.15s;
+}
+
+.preset-btn:hover { background: var(--surface2); color: var(--ink2); }
+.preset-btn.active { background: var(--red); border-color: var(--red); color: #fff; }
+
+/* ── Context note ── */
+.context-note {
+  background: var(--surface2);
+  border-left: 3px solid var(--border-strong);
+  padding: 1rem 1.25rem;
+  font-size: 11px;
+  color: var(--ink2);
+  line-height: 1.7;
+  margin-bottom: 1.75rem;
+  border-radius: 0 2px 2px 0;
+}
+
+.context-note.warn { border-left-color: var(--red); }
+.context-note strong { color: var(--ink); font-weight: 500; }
+
+/* ── Footer ── */
+footer {
+  border-top: 1px solid var(--border);
+  padding-top: 1.5rem;
+  font-size: 10px;
+  color: var(--ink3);
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+/* ── Animations ── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.site-header { animation: fadeUp 0.4s ease both; }
+.tool-panel.active > * { animation: fadeUp 0.35s ease both; }
+.tool-panel.active > *:nth-child(2) { animation-delay: 0.05s; }
+.tool-panel.active > *:nth-child(3) { animation-delay: 0.10s; }
+.tool-panel.active > *:nth-child(4) { animation-delay: 0.14s; }
+.tool-panel.active > *:nth-child(5) { animation-delay: 0.18s; }
+.tool-panel.active > *:nth-child(6) { animation-delay: 0.22s; }
+.tool-panel.active > *:nth-child(7) { animation-delay: 0.25s; }
 </style>
 </head>
 <body>
 <div class="container">
 
-  <header>
-    <div>
-      <div class="logo-mark">CI</div>
+  <!-- ── Site header ── -->
+  <div class="site-header">
+    <div class="site-brand">
+      <div class="logo-mark">$</div>
+      <div class="site-name">Money Tools <span>/ financial literacy</span></div>
+    </div>
+    <div class="tab-switcher">
+      <button class="tab-btn ci active" data-tab="ci">Compound Interest</button>
+      <button class="tab-btn pp"        data-tab="pp">Purchasing Power</button>
+    </div>
+  </div>
+
+  <!-- ════════════════════════
+       TOOL 1 — Compound Interest
+  ════════════════════════ -->
+  <div class="tool-panel active" id="panel-ci">
+
+    <div class="tool-header">
       <h1>Compound<br><em>Interest</em> Calculator</h1>
+      <div class="tool-desc">Watch your money grow as<br>interest earns interest<br>over time.</div>
     </div>
-    <div class="header-note">
-      Adjust the sliders to see<br>how your money grows<br>over time.
+
+    <div class="controls-section">
+      <div class="controls-label">Parameters</div>
+      <div class="controls-grid">
+        <div class="control-row">
+          <label>Initial investment <span class="val" id="ci-pOut">$1,000</span></label>
+          <input type="range" min="0" max="50000" step="500" value="1000" id="ci-principal">
+        </div>
+        <div class="control-row">
+          <label>Monthly contribution <span class="val" id="ci-cOut">$200/mo</span></label>
+          <input type="range" min="0" max="5000" step="25" value="200" id="ci-contrib">
+        </div>
+        <div class="control-row">
+          <label>Annual interest rate <span class="val" id="ci-rOut">7%</span></label>
+          <input type="range" min="1" max="20" step="0.5" value="7" id="ci-rate">
+        </div>
+        <div class="control-row">
+          <label>Time horizon <span class="val" id="ci-yOut">25 years</span></label>
+          <input type="range" min="1" max="50" step="1" value="25" id="ci-years">
+        </div>
+        <div class="control-row">
+          <label>Compounding <span class="val" id="ci-fOut">Monthly</span></label>
+          <input type="range" min="0" max="3" step="1" value="1" id="ci-freq">
+        </div>
+      </div>
     </div>
-  </header>
 
-  <div class="controls-section">
-    <div class="controls-label">Parameters</div>
-    <div class="controls-grid">
-
-      <div class="control-row">
-        <label>Initial investment <span class="val" id="pOut">$1,000</span></label>
-        <input type="range" min="0" max="50000" step="500" value="1000" id="principal">
+    <div class="metrics-grid cols-4">
+      <div class="metric">
+        <div class="metric-label">Total contributed</div>
+        <div class="metric-value" id="ci-mContrib">—</div>
+        <div class="metric-sub" id="ci-mContribSub">—</div>
       </div>
-
-      <div class="control-row">
-        <label>Monthly contribution <span class="val" id="cOut">$200/mo</span></label>
-        <input type="range" min="0" max="5000" step="25" value="200" id="contrib">
+      <div class="metric">
+        <div class="metric-label">Interest earned</div>
+        <div class="metric-value accent" id="ci-mInterest">—</div>
+        <div class="metric-sub" id="ci-mInterestSub">—</div>
       </div>
-
-      <div class="control-row">
-        <label>Annual interest rate <span class="val" id="rOut">7%</span></label>
-        <input type="range" min="1" max="20" step="0.5" value="7" id="rate">
+      <div class="metric">
+        <div class="metric-label">Final balance</div>
+        <div class="metric-value gold" id="ci-mTotal">—</div>
+        <div class="metric-sub" id="ci-mMultiple">—</div>
       </div>
-
-      <div class="control-row">
-        <label>Time horizon <span class="val" id="yOut">25 years</span></label>
-        <input type="range" min="1" max="50" step="1" value="25" id="years">
+      <div class="metric">
+        <div class="metric-label">Effective return</div>
+        <div class="metric-value" id="ci-mReturn">—</div>
+        <div class="metric-sub">on total contributed</div>
       </div>
-
-      <div class="control-row">
-        <label>Compounding frequency <span class="val" id="fOut">Monthly</span></label>
-        <input type="range" min="0" max="3" step="1" value="1" id="freq">
-      </div>
-
     </div>
+
+    <div class="chart-section">
+      <div class="chart-header">
+        <div class="chart-title">Growth over time</div>
+        <div class="legend">
+          <div class="legend-item"><div class="legend-dot" style="background:#2d5a3d"></div> Balance</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#9a9285"></div> Total contributed</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#d4ccc0"></div> Initial only</div>
+        </div>
+      </div>
+      <div class="chart-canvas-wrap"><canvas id="ciChart"></canvas></div>
+    </div>
+
+    <div class="breakdown-section">
+      <div class="breakdown-label">Balance breakdown at year <span id="ci-byear">25</span></div>
+      <div class="breakdown-bar-wrap">
+        <div class="bar-principal"     id="ci-barP" style="width:5%"></div>
+        <div class="bar-contributions" id="ci-barC" style="width:35%"></div>
+        <div class="bar-interest"      id="ci-barI" style="width:60%"></div>
+      </div>
+      <div class="breakdown-items">
+        <div class="breakdown-item">
+          <div class="bi-dot" style="background:var(--ink)"></div>
+          Initial: <span class="bi-val" id="ci-biP">—</span>
+        </div>
+        <div class="breakdown-item">
+          <div class="bi-dot" style="background:var(--ink3)"></div>
+          Contributions: <span class="bi-val" id="ci-biC">—</span>
+        </div>
+        <div class="breakdown-item">
+          <div class="bi-dot" style="background:var(--accent)"></div>
+          Interest: <span class="bi-val" id="ci-biI">—</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="context-note">
+      <strong>The Rule of 72 —</strong> divide 72 by your interest rate to estimate how many years it takes to double your money. At 7%, that's roughly every 10 years. Starting earlier matters more than any other variable.
+    </div>
+
   </div>
 
-  <div class="metrics-grid">
-    <div class="metric">
-      <div class="metric-label">Total contributed</div>
-      <div class="metric-value" id="mContrib">—</div>
-      <div class="metric-sub" id="mContribSub">—</div>
-    </div>
-    <div class="metric">
-      <div class="metric-label">Interest earned</div>
-      <div class="metric-value accent" id="mInterest">—</div>
-      <div class="metric-sub" id="mInterestSub">—</div>
-    </div>
-    <div class="metric">
-      <div class="metric-label">Final balance</div>
-      <div class="metric-value gold" id="mTotal">—</div>
-      <div class="metric-sub" id="mMultiple">—</div>
-    </div>
-    <div class="metric">
-      <div class="metric-label">Effective return</div>
-      <div class="metric-value" id="mReturn">—</div>
-      <div class="metric-sub">on total contributed</div>
-    </div>
-  </div>
+  <!-- ════════════════════════
+       TOOL 2 — Purchasing Power
+  ════════════════════════ -->
+  <div class="tool-panel" id="panel-pp">
 
-  <div class="chart-section">
-    <div class="chart-header">
-      <div class="chart-title">Growth over time</div>
-      <div class="legend">
-        <div class="legend-item"><div class="legend-dot" style="background:#2d5a3d"></div> Balance</div>
-        <div class="legend-item"><div class="legend-dot" style="background:#9a9285; border: 1px dashed #9a9285;"></div> Total contributed</div>
-        <div class="legend-item"><div class="legend-dot" style="background:#d4ccc0"></div> Initial only</div>
-      </div>
+    <div class="tool-header">
+      <h1>Purchasing<br><em class="red">Power</em> Erosion</h1>
+      <div class="tool-desc">See how inflation quietly<br>eats away at what your<br>money can actually buy.</div>
     </div>
-    <div class="chart-canvas-wrap">
-      <canvas id="ciChart"></canvas>
-    </div>
-  </div>
 
-  <div class="breakdown-section">
-    <div class="breakdown-label">Balance breakdown at year <span id="breakdownYear">25</span></div>
-    <div class="breakdown-bar-wrap">
-      <div class="bar-principal" id="barPrincipal" style="width:5%"></div>
-      <div class="bar-contributions" id="barContribs" style="width:35%"></div>
-      <div class="bar-interest" id="barInterest" style="width:60%"></div>
-    </div>
-    <div class="breakdown-items">
-      <div class="breakdown-item">
-        <div class="bi-dot" style="background:var(--ink)"></div>
-        Initial: <span class="bi-val" id="biPrincipal">—</span>
+    <div class="power-display">
+      <div class="power-cell">
+        <div class="power-cell-label">Today</div>
+        <div class="power-amount" id="pp-todayAmt">$10,000</div>
+        <div class="power-sub">buys <strong id="pp-todayDesc">$10,000 of goods</strong></div>
+        <div class="equiv-row" id="pp-equivNow"></div>
       </div>
-      <div class="breakdown-item">
-        <div class="bi-dot" style="background:var(--ink3)"></div>
-        Contributions: <span class="bi-val" id="biContribs">—</span>
-      </div>
-      <div class="breakdown-item">
-        <div class="bi-dot" style="background:var(--accent)"></div>
-        Interest: <span class="bi-val" id="biInterest">—</span>
+      <div class="power-cell future">
+        <div class="power-cell-label">After inflation — <span id="pp-futureYear">2045</span></div>
+        <div class="power-amount" id="pp-futureAmt">—</div>
+        <div class="power-sub">equivalent purchasing power</div>
+        <div class="equiv-row" id="pp-equivFuture"></div>
       </div>
     </div>
+
+    <div class="controls-section">
+      <div class="controls-label">Parameters</div>
+      <div class="controls-grid">
+        <div class="control-row">
+          <label>Amount today <span class="val" id="pp-amtOut">$10,000</span></label>
+          <input type="range" min="100" max="500000" step="100" value="10000" id="pp-amount">
+        </div>
+        <div class="control-row">
+          <label>Annual inflation rate <span class="val red" id="pp-infOut">3.0%</span></label>
+          <input type="range" class="red-thumb" min="0.5" max="20" step="0.5" value="3" id="pp-inflation">
+        </div>
+        <div class="control-row">
+          <label>Years ahead <span class="val" id="pp-yrsOut">20 years</span></label>
+          <input type="range" min="1" max="50" step="1" value="20" id="pp-years">
+        </div>
+      </div>
+    </div>
+
+    <div class="presets-wrap">
+      <div class="presets-label">Historical scenarios</div>
+      <div class="presets">
+        <button class="preset-btn" data-rate="2">Fed target — 2%</button>
+        <button class="preset-btn active" data-rate="3">US avg — 3%</button>
+        <button class="preset-btn" data-rate="6.5">2022 peak — 6.5%</button>
+        <button class="preset-btn" data-rate="13.5">1979 crisis — 13.5%</button>
+      </div>
+    </div>
+
+    <div class="metrics-grid cols-3">
+      <div class="metric">
+        <div class="metric-label">Purchasing power lost</div>
+        <div class="metric-value red" id="pp-mLost">—</div>
+        <div class="metric-sub" id="pp-mLostSub">—</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Needed to keep up</div>
+        <div class="metric-value amber" id="pp-mNeeded">—</div>
+        <div class="metric-sub" id="pp-mNeededSub">—</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Real value retained</div>
+        <div class="metric-value" id="pp-mReal">—</div>
+        <div class="metric-sub">cents on the dollar</div>
+      </div>
+    </div>
+
+    <div class="chart-section">
+      <div class="chart-header">
+        <div class="chart-title">Purchasing power over time</div>
+        <div class="legend">
+          <div class="legend-item"><div class="legend-dot" style="background:#b83225"></div> Real value</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#c8c0b4"></div> Nominal (face value)</div>
+        </div>
+      </div>
+      <div class="chart-canvas-wrap"><canvas id="ppChart"></canvas></div>
+    </div>
+
+    <div class="context-note warn" id="pp-note">
+      <strong>Context:</strong> At 3% inflation — close to the US long-run average — prices double roughly every 24 years. Cash sitting idle loses about a third of its value per decade.
+    </div>
+
   </div>
 
   <footer>
-    <span>Compound Interest Calculator</span>
-    <span>Results are illustrative only — not financial advice.</span>
+    <span>Money Tools — compound interest &amp; purchasing power</span>
+    <span>For educational purposes only — not financial advice.</span>
   </footer>
 
 </div>
 
 <script>
-  const freqLabels = ['Yearly', 'Monthly', 'Weekly', 'Daily'];
-  const freqNums   = [1, 12, 52, 365];
+/* ── Shared helpers ── */
+function fmt(n) {
+  if (n >= 1e6) return '$' + (n / 1e6).toFixed(2) + 'M';
+  if (n >= 1000) return '$' + Math.round(n / 1000) + 'k';
+  return '$' + Math.round(n);
+}
+function fmtFull(n) { return '$' + Math.round(n).toLocaleString(); }
 
-  function calcWithContribs(P, monthlyC, r, n, years) {
-    const balances = [P];
-    const contributed = [P];
-    let balance = P;
-    let totalContrib = P;
-    const rPerPeriod = r / n;
-    const periodsPerYear = n;
-    const monthsPerPeriod = 12 / n;
+const TOOLTIP = {
+  backgroundColor: '#fffef9',
+  titleColor: '#1a1710',
+  bodyColor: '#5a5547',
+  borderColor: 'rgba(26,23,16,0.15)',
+  borderWidth: 1,
+  padding: 10,
+  titleFont: { family: "'DM Mono', monospace", size: 11 },
+  bodyFont:  { family: "'DM Mono', monospace", size: 12 },
+  callbacks: { label: ctx => ' ' + ctx.dataset.label + ': $' + ctx.parsed.y.toLocaleString() }
+};
 
-    for (let y = 1; y <= years; y++) {
-      for (let p = 0; p < periodsPerYear; p++) {
-        balance = balance * (1 + rPerPeriod) + monthlyC * monthsPerPeriod;
-        totalContrib += monthlyC * monthsPerPeriod;
-      }
-      balances.push(Math.round(balance));
-      contributed.push(Math.round(totalContrib));
-    }
-    return { balances, contributed };
-  }
+const TICKS = { color: '#9a9285', font: { family: "'DM Mono', monospace", size: 10 } };
 
-  function calcPrincipalOnly(P, r, n, years) {
-    const data = [P];
-    for (let y = 1; y <= years; y++) {
-      data.push(Math.round(P * Math.pow(1 + r / n, n * y)));
-    }
-    return data;
-  }
+const Y_FMT = v => {
+  if (v >= 1e6) return '$' + (v / 1e6).toFixed(1) + 'M';
+  if (v >= 1000) return '$' + (v / 1000).toFixed(0) + 'k';
+  return '$' + v;
+};
 
-  function fmt(n) {
-    if (n >= 1000000) return '$' + (n / 1000000).toFixed(2) + 'M';
-    if (n >= 1000) return '$' + Math.round(n / 1000) + 'k';
-    return '$' + Math.round(n);
-  }
-
-  function fmtFull(n) {
-    return '$' + Math.round(n).toLocaleString();
-  }
-
-  let chart;
-
-  function update() {
-    const P  = +document.getElementById('principal').value;
-    const C  = +document.getElementById('contrib').value;
-    const r  = +document.getElementById('rate').value / 100;
-    const y  = +document.getElementById('years').value;
-    const fi = +document.getElementById('freq').value;
-    const n  = freqNums[fi];
-
-    document.getElementById('pOut').textContent = fmtFull(P);
-    document.getElementById('cOut').textContent = C === 0 ? '$0/mo' : fmtFull(C) + '/mo';
-    document.getElementById('rOut').textContent = (+document.getElementById('rate').value).toFixed(1).replace('.0','') + '%';
-    document.getElementById('yOut').textContent = y + ' year' + (y === 1 ? '' : 's');
-    document.getElementById('fOut').textContent = freqLabels[fi];
-    document.getElementById('breakdownYear').textContent = y;
-
-    const { balances, contributed } = calcWithContribs(P, C, r, n, y);
-    const principalOnly = calcPrincipalOnly(P, r, n, y);
-    const labels = Array.from({length: y + 1}, (_, i) => i === 0 ? 'Now' : 'Yr ' + i);
-
-    const finalBalance    = balances[y];
-    const totalContrib    = contributed[y];
-    const monthlyTotal    = C * 12 * y;
-    const interestEarned  = finalBalance - totalContrib;
-    const multiple        = totalContrib > 0 ? (finalBalance / totalContrib).toFixed(2) + '×' : '—';
-    const pct             = totalContrib > 0 ? '+' + Math.round((interestEarned / totalContrib) * 100) + '%' : '—';
-
-    document.getElementById('mContrib').textContent    = fmt(totalContrib);
-    document.getElementById('mContribSub').textContent = C > 0
-      ? fmtFull(P) + ' + ' + fmtFull(monthlyTotal) + ' saved'
-      : fmtFull(P) + ' initial only';
-    document.getElementById('mInterest').textContent   = fmt(interestEarned);
-    document.getElementById('mInterestSub').textContent = pct + ' of contributed';
-    document.getElementById('mTotal').textContent      = fmt(finalBalance);
-    document.getElementById('mMultiple').textContent   = multiple + ' your money';
-    document.getElementById('mReturn').textContent     = pct;
-
-    // Breakdown bar
-    const pPct = totalContrib > 0 ? (P / finalBalance * 100).toFixed(1) : 0;
-    const cPct = totalContrib > 0 ? (monthlyTotal / finalBalance * 100).toFixed(1) : 0;
-    const iPct = totalContrib > 0 ? (interestEarned / finalBalance * 100).toFixed(1) : 100;
-
-    document.getElementById('barPrincipal').style.width   = pPct + '%';
-    document.getElementById('barContribs').style.width    = cPct + '%';
-    document.getElementById('barInterest').style.width    = iPct + '%';
-    document.getElementById('biPrincipal').textContent    = fmt(P) + ' (' + pPct + '%)';
-    document.getElementById('biContribs').textContent     = fmt(monthlyTotal) + ' (' + cPct + '%)';
-    document.getElementById('biInterest').textContent     = fmt(interestEarned) + ' (' + (+iPct).toFixed(1) + '%)';
-
-    if (chart) {
-      chart.data.labels = labels;
-      chart.data.datasets[0].data = balances;
-      chart.data.datasets[1].data = contributed;
-      chart.data.datasets[2].data = principalOnly;
-      chart.update('none');
-    } else {
-      chart = new Chart(document.getElementById('ciChart'), {
-        type: 'line',
-        data: {
-          labels,
-          datasets: [
-            {
-              label: 'Balance',
-              data: balances,
-              borderColor: '#2d5a3d',
-              backgroundColor: 'rgba(45,90,61,0.08)',
-              fill: true,
-              tension: 0.35,
-              pointRadius: 0,
-              borderWidth: 2
-            },
-            {
-              label: 'Total contributed',
-              data: contributed,
-              borderColor: '#9a9285',
-              backgroundColor: 'transparent',
-              fill: false,
-              tension: 0,
-              pointRadius: 0,
-              borderWidth: 1.5,
-              borderDash: [5, 4]
-            },
-            {
-              label: 'Initial only',
-              data: principalOnly,
-              borderColor: '#d4ccc0',
-              backgroundColor: 'rgba(212,204,192,0.12)',
-              fill: true,
-              tension: 0.35,
-              pointRadius: 0,
-              borderWidth: 1
-            }
-          ]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          animation: { duration: 300 },
-          interaction: { mode: 'index', intersect: false },
-          plugins: {
-            legend: { display: false },
-            tooltip: {
-              backgroundColor: '#fffef9',
-              titleColor: '#1a1710',
-              bodyColor: '#5a5547',
-              borderColor: 'rgba(26,23,16,0.15)',
-              borderWidth: 1,
-              padding: 10,
-              titleFont: { family: "'DM Mono', monospace", size: 11 },
-              bodyFont: { family: "'DM Mono', monospace", size: 12 },
-              callbacks: {
-                label: ctx => ' ' + ctx.dataset.label + ': $' + ctx.parsed.y.toLocaleString()
-              }
-            }
-          },
-          scales: {
-            x: {
-              grid: { display: false },
-              border: { color: 'rgba(26,23,16,0.1)' },
-              ticks: {
-                color: '#9a9285',
-                font: { family: "'DM Mono', monospace", size: 10 },
-                maxTicksLimit: 10,
-                autoSkip: true
-              }
-            },
-            y: {
-              grid: { color: 'rgba(26,23,16,0.06)' },
-              border: { display: false },
-              ticks: {
-                color: '#9a9285',
-                font: { family: "'DM Mono', monospace", size: 10 },
-                callback: v => {
-                  if (v >= 1000000) return '$' + (v / 1000000).toFixed(1) + 'M';
-                  if (v >= 1000) return '$' + (v / 1000).toFixed(0) + 'k';
-                  return '$' + v;
-                }
-              }
-            }
-          }
-        }
-      });
-    }
-  }
-
-  ['principal','contrib','rate','years','freq'].forEach(id => {
-    document.getElementById(id).addEventListener('input', update);
+/* ── Tab switching ── */
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const tab = btn.dataset.tab;
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tool-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('panel-' + tab).classList.add('active');
+    setTimeout(() => { ciChart && ciChart.resize(); ppChart && ppChart.resize(); }, 10);
   });
+});
 
-  update();
+/* ══════════════════════
+   TOOL 1 — Compound Interest
+══════════════════════ */
+const FREQ_LABELS = ['Yearly','Monthly','Weekly','Daily'];
+const FREQ_NUMS   = [1, 12, 52, 365];
+
+function ciCalc(P, monthlyC, r, n, years) {
+  const balances = [P], contributed = [P];
+  let balance = P, totalContrib = P;
+  for (let y = 1; y <= years; y++) {
+    for (let p = 0; p < n; p++) {
+      balance = balance * (1 + r / n) + monthlyC * (12 / n);
+      totalContrib += monthlyC * (12 / n);
+    }
+    balances.push(Math.round(balance));
+    contributed.push(Math.round(totalContrib));
+  }
+  return { balances, contributed };
+}
+
+function ciPrincipalOnly(P, r, n, years) {
+  const d = [P];
+  for (let y = 1; y <= years; y++) d.push(Math.round(P * Math.pow(1 + r / n, n * y)));
+  return d;
+}
+
+let ciChart;
+
+function ciUpdate() {
+  const P  = +document.getElementById('ci-principal').value;
+  const C  = +document.getElementById('ci-contrib').value;
+  const r  = +document.getElementById('ci-rate').value / 100;
+  const y  = +document.getElementById('ci-years').value;
+  const fi = +document.getElementById('ci-freq').value;
+  const n  = FREQ_NUMS[fi];
+
+  document.getElementById('ci-pOut').textContent  = fmtFull(P);
+  document.getElementById('ci-cOut').textContent  = C ? fmtFull(C) + '/mo' : '$0/mo';
+  document.getElementById('ci-rOut').textContent  = (+document.getElementById('ci-rate').value).toFixed(1).replace('.0','') + '%';
+  document.getElementById('ci-yOut').textContent  = y + ' year' + (y === 1 ? '' : 's');
+  document.getElementById('ci-fOut').textContent  = FREQ_LABELS[fi];
+  document.getElementById('ci-byear').textContent = y;
+
+  const { balances, contributed } = ciCalc(P, C, r, n, y);
+  const principalOnly = ciPrincipalOnly(P, r, n, y);
+  const labels = Array.from({length: y + 1}, (_, i) => i === 0 ? 'Now' : 'Yr ' + i);
+
+  const finalBal  = balances[y];
+  const totalContr = contributed[y];
+  const monthlyTot = C * 12 * y;
+  const interest  = finalBal - totalContr;
+  const multiple  = totalContr > 0 ? (finalBal / totalContr).toFixed(2) + '×' : '—';
+  const pct       = totalContr > 0 ? '+' + Math.round((interest / totalContr) * 100) + '%' : '—';
+
+  document.getElementById('ci-mContrib').textContent     = fmt(totalContr);
+  document.getElementById('ci-mContribSub').textContent  = C ? fmtFull(P) + ' + ' + fmtFull(monthlyTot) + ' saved' : fmtFull(P) + ' initial only';
+  document.getElementById('ci-mInterest').textContent    = fmt(interest);
+  document.getElementById('ci-mInterestSub').textContent = pct + ' of contributed';
+  document.getElementById('ci-mTotal').textContent       = fmt(finalBal);
+  document.getElementById('ci-mMultiple').textContent    = multiple + ' your money';
+  document.getElementById('ci-mReturn').textContent      = pct;
+
+  const pPct = finalBal > 0 ? +(P / finalBal * 100).toFixed(1) : 0;
+  const cPct = finalBal > 0 ? +(monthlyTot / finalBal * 100).toFixed(1) : 0;
+  const iPct = finalBal > 0 ? +(interest / finalBal * 100).toFixed(1) : 100;
+
+  document.getElementById('ci-barP').style.width = pPct + '%';
+  document.getElementById('ci-barC').style.width = cPct + '%';
+  document.getElementById('ci-barI').style.width = iPct + '%';
+  document.getElementById('ci-biP').textContent  = fmt(P) + ' (' + pPct + '%)';
+  document.getElementById('ci-biC').textContent  = fmt(monthlyTot) + ' (' + cPct + '%)';
+  document.getElementById('ci-biI').textContent  = fmt(interest) + ' (' + iPct.toFixed(1) + '%)';
+
+  const ds = [
+    { label: 'Balance',           data: balances,      borderColor: '#2d5a3d', backgroundColor: 'rgba(45,90,61,0.08)',    fill: true,  tension: 0.35, pointRadius: 0, borderWidth: 2 },
+    { label: 'Total contributed', data: contributed,   borderColor: '#9a9285', backgroundColor: 'transparent',           fill: false, tension: 0,    pointRadius: 0, borderWidth: 1.5, borderDash: [5,4] },
+    { label: 'Initial only',      data: principalOnly, borderColor: '#d4ccc0', backgroundColor: 'rgba(212,204,192,0.12)', fill: true,  tension: 0.35, pointRadius: 0, borderWidth: 1 }
+  ];
+
+  if (ciChart) {
+    ciChart.data.labels = labels;
+    ds.forEach((d, i) => ciChart.data.datasets[i].data = d.data);
+    ciChart.update('none');
+  } else {
+    ciChart = new Chart(document.getElementById('ciChart'), {
+      type: 'line', data: { labels, datasets: ds },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        animation: { duration: 300 },
+        interaction: { mode: 'index', intersect: false },
+        plugins: { legend: { display: false }, tooltip: TOOLTIP },
+        scales: {
+          x: { grid: { display: false }, border: { color: 'rgba(26,23,16,0.1)' }, ticks: { ...TICKS, maxTicksLimit: 10, autoSkip: true } },
+          y: { grid: { color: 'rgba(26,23,16,0.06)' }, border: { display: false }, ticks: { ...TICKS, callback: Y_FMT } }
+        }
+      }
+    });
+  }
+}
+
+['ci-principal','ci-contrib','ci-rate','ci-years','ci-freq'].forEach(id =>
+  document.getElementById(id).addEventListener('input', ciUpdate)
+);
+
+/* ══════════════════════
+   TOOL 2 — Purchasing Power
+══════════════════════ */
+const EQUIV = [
+  { label: 'cups of coffee', price: 5 },
+  { label: 'movie tickets',  price: 15 },
+  { label: 'tanks of gas',   price: 60 },
+  { label: 'grocery runs',   price: 150 },
+];
+
+const PP_NOTES = {
+  low:    'At 2% — the Fed\'s target — prices double every ~35 years. Even here, a decade of idle cash quietly loses around 18% of its purchasing power.',
+  mid:    'At 3% — close to the US long-run average — prices double roughly every 24 years. Cash sitting idle loses about a third of its value per decade.',
+  high:   'At 6–7% like 2022, prices double in ~10–11 years. Fixed-income savers can see half their purchasing power gone within a decade.',
+  crisis: 'At 13%+ like 1979–80, prices double in under 6 years. The Fed\'s cure — extreme rate hikes — triggered a deep recession to bring it under control.'
+};
+
+function ppEquivHTML(amount, struck) {
+  return EQUIV.map(e => {
+    const n = Math.floor(amount / e.price).toLocaleString();
+    return `<div class="equiv-tag${struck ? ' struck' : ''}">${n} ${e.label}</div>`;
+  }).join('');
+}
+
+let ppChart;
+
+function ppUpdate() {
+  const amount    = +document.getElementById('pp-amount').value;
+  const inflation = +document.getElementById('pp-inflation').value;
+  const years     = +document.getElementById('pp-years').value;
+  const curYear   = new Date().getFullYear();
+  const futureYear = curYear + years;
+
+  document.getElementById('pp-amtOut').textContent  = fmtFull(amount);
+  document.getElementById('pp-infOut').textContent  = inflation.toFixed(1) + '%';
+  document.getElementById('pp-yrsOut').textContent  = years + ' year' + (years === 1 ? '' : 's');
+
+  const real    = amount / Math.pow(1 + inflation / 100, years);
+  const needed  = amount * Math.pow(1 + inflation / 100, years);
+  const lost    = amount - real;
+  const pctLost = Math.round((lost / amount) * 100);
+  const cents   = Math.round((real / amount) * 100);
+
+  document.getElementById('pp-todayAmt').textContent   = fmtFull(amount);
+  document.getElementById('pp-todayDesc').textContent  = fmtFull(amount) + ' of goods';
+  document.getElementById('pp-futureAmt').textContent  = fmtFull(real);
+  document.getElementById('pp-futureYear').textContent = futureYear;
+  document.getElementById('pp-equivNow').innerHTML     = ppEquivHTML(amount, false);
+  document.getElementById('pp-equivFuture').innerHTML  = ppEquivHTML(real, true);
+
+  document.getElementById('pp-mLost').textContent     = '-' + pctLost + '%';
+  document.getElementById('pp-mLostSub').textContent  = fmtFull(lost) + ' in real value gone';
+  document.getElementById('pp-mNeeded').textContent   = fmt(needed);
+  document.getElementById('pp-mNeededSub').textContent = 'to match today\'s ' + fmtFull(amount) + ' in ' + futureYear;
+  document.getElementById('pp-mReal').textContent     = cents + '¢';
+
+  const noteKey = inflation <= 2.5 ? 'low' : inflation <= 5 ? 'mid' : inflation <= 10 ? 'high' : 'crisis';
+  document.getElementById('pp-note').innerHTML = '<strong>Context:</strong> ' + PP_NOTES[noteKey];
+
+  const labels = [], realData = [], nomData = [];
+  for (let y = 0; y <= years; y++) {
+    labels.push(y === 0 ? 'Now' : String(curYear + y));
+    realData.push(Math.round(amount / Math.pow(1 + inflation / 100, y)));
+    nomData.push(amount);
+  }
+
+  const ds = [
+    { label: 'Real purchasing power', data: realData, borderColor: '#b83225', backgroundColor: 'rgba(184,50,37,0.07)', fill: true,  tension: 0.3, pointRadius: 0, borderWidth: 2 },
+    { label: 'Nominal value',         data: nomData,  borderColor: '#c8c0b4', backgroundColor: 'transparent',         fill: false, tension: 0,   pointRadius: 0, borderWidth: 1.5, borderDash: [6,4] }
+  ];
+
+  if (ppChart) {
+    ppChart.data.labels = labels;
+    ds.forEach((d, i) => ppChart.data.datasets[i].data = d.data);
+    ppChart.update('none');
+  } else {
+    ppChart = new Chart(document.getElementById('ppChart'), {
+      type: 'line', data: { labels, datasets: ds },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        animation: { duration: 250 },
+        interaction: { mode: 'index', intersect: false },
+        plugins: { legend: { display: false }, tooltip: TOOLTIP },
+        scales: {
+          x: { grid: { display: false }, border: { color: 'rgba(26,23,16,0.1)' }, ticks: { ...TICKS, maxTicksLimit: 10, autoSkip: true } },
+          y: { grid: { color: 'rgba(26,23,16,0.06)' }, border: { display: false }, ticks: { ...TICKS, callback: Y_FMT } }
+        }
+      }
+    });
+  }
+}
+
+document.querySelectorAll('.preset-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('pp-inflation').value = btn.dataset.rate;
+    ppUpdate();
+  });
+});
+
+document.getElementById('pp-inflation').addEventListener('input', () => {
+  document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+  ppUpdate();
+});
+
+['pp-amount','pp-years'].forEach(id =>
+  document.getElementById(id).addEventListener('input', ppUpdate)
+);
+
+/* ── Init ── */
+ciUpdate();
+ppUpdate();
 </script>
 </body>
 </html>
